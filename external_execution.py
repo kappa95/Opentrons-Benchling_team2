@@ -6,6 +6,7 @@ import os  # it is for the second method, but the first one allows to pass varia
 # This start the external simulation
 call(["opentrons_simulate.exe", "v1_station_C.py"])
 # os.system("opentrons_simulate.exe v1_station_C.py")  # it's another way
+# opentrons.simulate("v1_station_C.py")  # if you want use opentrons api 
 filepath = './outputs/'
 with open(filepath + '/payload.json', 'w') as json_write:
     with open(filepath + 'tip_log.json', 'r') as json_read:
