@@ -149,7 +149,7 @@ resuming.')
         p300.touch_tip()
     
     if tempdeck.temperature >= TempUB and CHECK_TEMP:
-        ctx.pause('The temperature is not 5°C')
+        ctx.pause('The temperature is above 5°C')
         tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
@@ -166,7 +166,7 @@ resuming.')
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
 # my modification
     if tempdeck.temperature >= TempUB and CHECK_TEMP:
-        ctx.pause('The temperature is not 5°C')
+        ctx.pause('The temperature is above 5°C')
         tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
