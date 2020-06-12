@@ -35,6 +35,8 @@ def run(ctx: protocol_api.ProtocolContext):
         'opentrons_96_aluminumblock_generic_pcr_strip_200ul', '7',
         'mastermix strips')
     tempdeck.set_temperature(4)  # it sets the temp to 4°C
+    # my modification
+    tempdeck.await_temperature(4)
     tube_block = ctx.load_labware(
         'opentrons_24_aluminumblock_nest_1.5ml_snapcap', '5',
         '2ml screw tube aluminum block for mastermix + controls')
@@ -138,6 +140,12 @@ resuming.')
         pick_up(p300)
     for well in mm_strip:
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
+# my modification
+    if tempdeck.temperature != 4:   # the condition can be done also as:
+        # if tempdeck.temperature < 3.8 or tempdeck.temperature > 4.2:
+        ctx.pause('The temperature is not 4°C')
+        tempdeck.await_temperature(4)
+        ctx.resume()
 
     # transfer mastermix to plate
     mm_vol = mm_dict['volume']
