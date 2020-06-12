@@ -56,7 +56,7 @@ def run(ctx: protocol_api.ProtocolContext):
 # a new one. If it exists it reads the number of tips used.
 
     tip_log = {'count': {}}
-    folder_path = './outputs'
+    folder_path = './outputs/C'
     tip_file_path = folder_path + '/tip_log.json'
     if TIP_TRACK and ctx.is_simulating():  # if i need to simulate and check the json file i need to remove the not
         if os.path.isfile(tip_file_path):
