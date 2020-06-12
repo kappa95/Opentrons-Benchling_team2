@@ -152,7 +152,7 @@ resuming.')
         tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
-        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") = tempdeck.temperature # Generates Log file Data
+        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f")} = tempdeck.temperature # Generates Log file Data
         
     # transfer mastermix to strips
     vol_per_strip_well = num_cols*mm_dict['volume']*1.1
@@ -167,7 +167,7 @@ resuming.')
         tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
-        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") = tempdeck.temperature 
+        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") }= tempdeck.temperature 
     # transfer mastermix to plate
     mm_vol = mm_dict['volume']
     pick_up(m20)
@@ -190,7 +190,7 @@ resuming.')
         tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
-        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") = tempdeck.temperature # Generates Log file Data
+        TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f")}= tempdeck.temperature # Generates Log file Data
                 
     # track final used tip
     if TIP_TRACK and ctx.is_simulating():
