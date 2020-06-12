@@ -105,7 +105,7 @@ resuming.')
             for tube, vol in zip(tube_block.columns()[1], [10, 2])
         }
     }
-    if CHECK_TEMP 
+    if CHECK_TEMP:
         temp_file_path = folder_path + '/temp_log.json'
         TempUB = 5 # Upper bound on allowable temperature
         Tempflag = 0 # Generates log file in case temperature exceeds bound
