@@ -58,7 +58,7 @@ def run(ctx: protocol_api.ProtocolContext):
     tip_log = {'count': {}}
     folder_path = './outputs'
     tip_file_path = folder_path + '/tip_log.json'
-    if TIP_TRACK and ctx.is_simulating():  # if i need to simulate and check the json file i need to remove the not
+    if TIP_TRACK and not ctx.is_simulating():  # if i need to simulate and check the json file i need to remove the not
         if os.path.isfile(tip_file_path):
             with open(tip_file_path) as json_file:
                 data = json.load(json_file)
@@ -199,7 +199,7 @@ resuming.')
             TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
                 
     # track final used tip
-    if TIP_TRACK and ctx.is_simulating():
+    if TIP_TRACK and not ctx.is_simulating():  # i have putted the not as the original
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
         data = {
@@ -210,7 +210,8 @@ resuming.')
             json.dump(data, outfile)
 
     # Track Temperatures
-    if CHECK_TEMP and ctx.is_simulating():
+#     if CHECK_TEMP and ctx.is_simulating():  # if we execute the code on machines we don't see this
+    if CHECK_TEMP:  # in order to check always
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
         TEMPdata = TempLog
