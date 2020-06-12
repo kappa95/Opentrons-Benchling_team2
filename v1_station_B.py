@@ -306,7 +306,7 @@ minutes.')
 
     elute(40, park=PARK)
     # Printing the Temperatures
-    if CHECK_TEMP and ctx.is_simulating():
+    if CHECK_TEMP:
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
         with open(temp_file_path, 'w') as outfiletemp:
