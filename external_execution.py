@@ -3,6 +3,12 @@ import json
 from benchling import api_post
 import os  # it is for the second method, but the first one allows to pass variables
 
+# if instead i want to use the opentrons api to simulate/execute:
+# from opentrons import opentrons.simulate
+# with open("v1_station_C.py", 'r') as protocolfile:
+#    opentrons.simulate.simulate(protocolfile)
+
+
 # This start the external simulation
 call(["opentrons_simulate.exe", "v1_station_C.py"])
 # os.system("opentrons_simulate.exe v1_station_C.py")  # it's another way
