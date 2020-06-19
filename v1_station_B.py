@@ -215,11 +215,13 @@ resuming.')
             else:
                 drop(m300)
 
-        if SKIP_DELAY == False:
+        if not SKIP_DELAY:
             # Time Issue in Station B Waiting time of 5 min before magnetic module activation.
-            ctx.delay(minutes=5, msg='Waiting minutes before magnetic module activation.')
+            ctx.delay(minutes=5, msg='Waiting 5 minutes before MagDeck activation.')
+
         magdeck.engage(height=magheight)
-        if SKIP_DELAY == False:
+
+        if not SKIP_DELAY:
             #Time Issue in Station B After the waiting time of 5 min the magnetic module should run for 6 min.
             ctx.delay(minutes=6, msg='Incubating on MagDeck for 6 minutes.')
 
