@@ -19,6 +19,8 @@ TIP_TRACK = False
 CHECK_TEMP = True
 PARK = False
 
+SKIP_DELAY = False
+
 # Definitions for deck light flashing
 class CancellationToken:
     def __init__(self):
@@ -215,6 +217,14 @@ resuming.')
 
         magdeck.engage(height=magheight)
         ctx.delay(minutes=2, msg='Incubating on MagDeck for 2 minutes.')
+
+        if SKIP_DELAY == False:
+            # Time Issue in Station B Waiting time of 5 min before magnetic module activation.
+            ctx.delay(minutes=5, msg='Waiting minutes before magnetic module activation.')
+        magdeck.engage(height=magheight)
+        if SKIP_DELAY == False:
+            #Time Issue in Station B After the waiting time of 5 min the magnetic module should run for 6 min.
+            ctx.delay(minutes=6, msg='Incubating on MagDeck for 6 minutes.')
 
         # remove initial supernatant
         remove_supernatant(vol+SAMPLE_VOL, park=park)
