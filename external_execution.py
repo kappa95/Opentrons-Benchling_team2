@@ -11,7 +11,6 @@ def main(w_ip='192.168.1.14'):
     client = pk.SSHClient()
     client.set_missing_host_key_policy(pk.AutoAddPolicy())
     client.connect(w_ip, username='root', key_filename=key, password='opentrons')
-    # stdin, stdout, stderr = client.exec_command('whoami')
     env_dict = {"OT_SMOOTHIE_ID": "AMA", "RUNNING_ON_PI": "true"}
     (stdin, stdout, stderr) = client.exec_command('opentrons_execute {}/{} -n'.format(protocol_folder, protocol_file),
                                                   environment=env_dict)
