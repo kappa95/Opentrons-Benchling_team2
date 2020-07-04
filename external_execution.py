@@ -1,48 +1,24 @@
-from subprocess import call
-import json
-from benchling import api_post
-import os  # it is for the second method, but the first one allows to pass variables
+import paramiko as pk
 
-# if instead i want to use the opentrons api to simulate/execute:
-# from opentrons import opentrons.simulate
-# with open("v1_station_C.py", 'r') as protocolfile:
-#    opentrons.simulate.simulate(protocolfile)
+key_name = 'ot2_ssh_key'
+direct = 'C:/Users/inse9/'
+key = direct + key_name
+protocol_folder = '/var/lib/jupyter/notebooks/'
+protocol_file = 'v1_station_C.py'
 
 
-# This start the external simulation
-call(["opentrons_simulate.exe", "v1_station_C.py"])
-# os.system("opentrons_simulate.exe v1_station_C.py")  # it's another way
-# opentrons.simulate("v1_station_C.py")  # if you want use opentrons api 
-filepath = './outputs/'
-with open(filepath + '/payload.json', 'w') as json_write:
-    with open(filepath + 'tip_log.json', 'r') as json_read:
-        data = json.load(json_read)  # it is a dictionary now
-    data["Station"] = "C"
-    json.dump(data, json_write)
-
-# now i want to upload on benchling
-domain = 'multiplylabstest.benchling.com'
-api_key = 'sk_pLytaKiuqk6D6draYkwwK3Yq8KNPe'
-
-
-def main():
-    path = 'custom-entities'  # This is the path where you upload a new custom entity
-    folderid = "lib_Ijj1J0fZ"  # it is the folder id associated to the mine
-    schemaid = "ts_0m0f82y8"
-    with open(filepath + '/payload.json', 'r') as json_read2:
-        data2 = json.load(json_read2)
-    payload = {
-        "aliases": ['Written by Python'],
-        "customFields": {
-            "Station": {"value": data2["Station"]},
-            "tips20": {"value": str(data2["tips20"])},
-            "tips300": {"value": str(data2["tips300"])},
-            },
-        "folderId": folderid,
-        "name": "external_execution",
-        "schemaId": schemaid}
-    # print(data2)
-    new_entity = api_post(domain, api_key, path, payload)
+def main(w_ip='192.168.1.14'):
+    client = pk.SSHClient()
+    client.set_missing_host_key_policy(pk.AutoAddPolicy())
+    client.connect(w_ip, username='root', key_filename=key, password='opentrons')
+    # stdin, stdout, stderr = client.exec_command('whoami')
+    env_dict = {"OT_SMOOTHIE_ID": "AMA", "RUNNING_ON_PI": "true"}
+    (stdin, stdout, stderr) = client.exec_command('opentrons_execute {}/{} -n'.format(protocol_folder, protocol_file),
+                                                  environment=env_dict)
+    output = stdout.readlines()
+    print('\n'.join(output))
+    err = stderr.readlines()
+    print('\n'.join(err))
 
 
 if __name__ == "__main__":
