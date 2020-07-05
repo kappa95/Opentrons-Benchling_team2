@@ -37,5 +37,5 @@ def execute_command_on_remote(remote):
     """Execute UNIX command on the remote host."""
     remote.execute_cmd(['export OT_SMOOTHIE_ID="AMA"','RUNNING_ON_PI="true"','opentrons_execute {}/{} -n'.format(protocol_folder, protocol_file)])
 
-if __name__ == "__main_":
+if __name__ == "__main__":
     main()
