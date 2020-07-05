@@ -92,3 +92,25 @@ class RemoteClient:
         uploads = [self._upload_single_file(file) for file in files]
         logger.info(f'Finished uploading {len(uploads)} files to {self.remote_path} on {self.host}')
 
+    def _upload_single_file(self, file):
+        """Upload a single file to a remote directory."""
+        upload = None
+        try:
+            self.scp.put(
+                file,
+                recursive=True,
+                remote_path=self.remote_path
+            )
+            upload = file
+        except SCPException as error:
+            logger.error(error)
+            raise error
+        finally:
+            logger.info(f'Uploaded {file} to {self.remote_path}')
+            return upload
+
+    def download_file(self, file):
+        """Download file from remote host."""
+        self.conn = self._connect()
+        self.scp.get(file)
+
