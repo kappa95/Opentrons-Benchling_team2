@@ -27,10 +27,10 @@ def upload_files_to_remote(remote):
     local_files = fetch_local_files(local_file_directory)
     remote.bulk_upload(local_files)
 
-def download_files_from_remote(remote):
+def download_files_to_remote(remote):
     """Download files from remote via SCP."""
     local_files = 'FILENAME'
-    remote.bulk_upload(local_files)
+    remote.download_file(local_files)
 
 
 def execute_command_on_remote(remote):
@@ -40,5 +40,5 @@ def execute_command_on_remote(remote):
 
 
 
-if __name__ == "__main__":
+if __name__ == "__init__":
     main()
