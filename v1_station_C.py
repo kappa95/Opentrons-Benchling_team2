@@ -21,6 +21,27 @@ temp_check = 25.0
 
 
 def run(ctx: protocol_api.ProtocolContext):
+
+    folder_path = './outputs'
+    temp_file_path = folder_path + '/temp_log.json'
+    TempLog = {"time": [], "value": [], "flag": []}  # For log file data
+    TempUB = temp_check  # Upper bound on allowable temperature
+
+    def check_temperature():
+        if tempdeck.temperature >= TempUB:
+            ctx.pause('The temperature is above 5°C')
+            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
+            ctx.resume()
+            Tempflag = 1
+            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
+            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+            TempLog["flag"] = Tempflag
+        else:
+            Tempflag = 0
+            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
+            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+            TempLog["flag"] = Tempflag
+
     global MM_TYPE
 
     # check source (elution) labware type
@@ -40,7 +61,6 @@ def run(ctx: protocol_api.ProtocolContext):
         'mastermix strips')
     tempdeck.set_temperature(temp_a)  # it sets the temp to 4°C
     # my modification
-    # tempdeck.module.wait_for_temp()  Not sure if needed since physical system is waiting for temperature, but I dont know why
     tube_block = ctx.load_labware(
         'opentrons_24_aluminumblock_nest_1.5ml_snapcap', '5',
         '2ml screw tube aluminum block for mastermix + controls')
@@ -55,8 +75,8 @@ def run(ctx: protocol_api.ProtocolContext):
     sources = source_plate.rows()[0][:num_cols]
     sample_dests = pcr_plate.rows()[0][:num_cols]
 
-    # Read the number of the tips from the json file if previously is runned the code. If the file doesn't exist it creates
-    # a new one. If it exists it reads the number of tips used.
+    """Read the number of the tips from the json file if previously is runned the code.
+    If the file doesn't exist it creates a new one. If it exists it reads the number of tips used."""
 
     tip_log = {'count': {}}
     folder_path = './outputs'
@@ -108,18 +128,6 @@ resuming.')
             for tube, vol in zip(tube_block.columns()[1], [10, 2])
         }
     }
-    TempUB = temp_check  # Upper bound on allowable temperature
-    if CHECK_TEMP:
-        temp_file_path = folder_path + '/temp_log.json'
-        Tempflag = 0  # Generates log file in case temperature exceeds bound
-        TempLog = {"time": [], "value": []}  # For log file data
-        if tempdeck.temperature >= TempUB:
-            ctx.pause('The temperature is above 5°C')
-            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-            ctx.resume()
-            Tempflag = 1
-            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
 
     if PREPARE_MASTERMIX:
         vol_overage = 1.2  # decrease overage for small sample number
@@ -158,7 +166,6 @@ resuming.')
         Tempflag = 1
         TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
         TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-        # TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") = tempdeck.temperature # Generates Log file Data
 
     # transfer mastermix to strips
     vol_per_strip_well = num_cols * mm_dict['volume'] * 1.1
