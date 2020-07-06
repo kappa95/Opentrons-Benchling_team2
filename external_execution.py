@@ -19,7 +19,7 @@ def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     chann.send('exit \n')
     chann.recv_exit_status()
     ftp_client = client.open_sftp()
-    local_filepath = "./log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
+    local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
     ftp_client.get(remote_log_filepath, local_filepath)
     ftp_client.close()
 
