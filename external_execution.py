@@ -18,7 +18,9 @@ def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     chann.send('ls -a \n')
     # chann.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
     chann.send('exit \n')
-    chann.recv_exit_status()
+    code = chann.recv_exit_status()
+    print("I got the code: {}".format(code))
+    client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
     ftp_client = client.open_sftp()
     local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
     ftp_client.get(remote_log_filepath, local_filepath)
