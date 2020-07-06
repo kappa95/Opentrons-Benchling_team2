@@ -9,7 +9,6 @@ protocol_folder = '/var/lib/jupyter/notebooks/'  # Folder in which is contained 
 protocol_file = 'v1_station_C.py'
 
 remote_log_filepath = '/var/lib/jupyter/outputs/temp_log.json'
-local_filepath = "./logs/"
 
 def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     client = pk.SSHClient()  # Create an object SSH client
@@ -20,7 +19,7 @@ def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     chann.send('exit')
     chann.recv_exit_status()
     ftp_client = client.open_sftp()
-    localfilepath = "./log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
+    local_filepath = "./log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
     ftp_client.get(remote_log_filepath, local_filepath)
     ftp_client.close()
 
