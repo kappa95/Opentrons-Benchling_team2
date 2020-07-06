@@ -30,7 +30,7 @@ def run(ctx: protocol_api.ProtocolContext):
     TempLog = {"time": [], "value": [], "flag": []}  # For log file data
 
     def check_temperature():
-        if tempdeck.temperature >= TempUB:
+        if tempdeck.temperature >= TempUB and tempdeck.status != 'holding at target':
             if tempdeck.status != 'holding at target':
                 ctx.pause('The temperature is above {}°C'.format(TempUB))
                 while tempdeck.temperature >= temp_check:
@@ -87,7 +87,6 @@ def run(ctx: protocol_api.ProtocolContext):
     If the file doesn't exist it creates a new one. If it exists it reads the number of tips used."""
 
     tip_log = {'count': {}}
-    folder_path = './outputs'
     tip_file_path = folder_path + '/tip_log.json'
     if TIP_TRACK and not ctx.is_simulating():  # if i need to simulate and check the json file i need to remove the not
         if os.path.isfile(tip_file_path):
