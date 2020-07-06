@@ -25,7 +25,7 @@ TempUB = temp_check + 1.0
 def run(ctx: protocol_api.ProtocolContext):
 
     # Define the Path for the log temperature file
-    folder_path = './outputs'
+    folder_path = '/var/lib/jupyter/notebooks/C/outputs'
     temp_file_path = folder_path + '/temp_log.json'
     TempLog = {"time": [], "value": [], "flag": []}  # For log file data
 
