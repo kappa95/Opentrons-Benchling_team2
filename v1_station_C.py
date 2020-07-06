@@ -3,6 +3,7 @@ import json
 import os
 import math
 import datetime
+import time
 
 # metadata
 metadata = {
@@ -18,7 +19,7 @@ TIP_TRACK = True  # i want to keep track of tips
 CHECK_TEMP = True
 temp_a = 24.9
 temp_check = 25.0
-TempUB = 26.0
+TempUB = temp_check + 1.0
 
 def run(ctx: protocol_api.ProtocolContext):
 
@@ -26,7 +27,6 @@ def run(ctx: protocol_api.ProtocolContext):
     folder_path = './outputs'
     temp_file_path = folder_path + '/temp_log.json'
     TempLog = {"time": [], "value": [], "flag": []}  # For log file data
-    TempUB = temp_check  # Upper bound on allowable temperature
 
     def check_temperature():
         if tempdeck.temperature >= TempUB:
