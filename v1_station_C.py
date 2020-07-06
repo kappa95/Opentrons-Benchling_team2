@@ -3,7 +3,7 @@ import json
 import os
 import math
 import datetime
-import time
+import asyncio
 
 # metadata
 metadata = {
@@ -34,7 +34,7 @@ def run(ctx: protocol_api.ProtocolContext):
             while tempdeck.temperature >= temp_check:
                 print("sleeping for 0.5 s to wait for Temp_Deck")
                 print("current temperature is {}°C".format(tempdeck.temperature))
-                time.sleep(0.5)
+                await asyncio.sleep(0.1)
                 
             # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
             ctx.resume()
