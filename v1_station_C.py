@@ -159,13 +159,18 @@ resuming.')
         p300.blow_out(mm_tube.top())
         p300.touch_tip()
 
-    if tempdeck.temperature >= TempUB and CHECK_TEMP:
-        ctx.pause('The temperature is above 5°C')
-        # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-        ctx.resume()
-        Tempflag = 1
-        TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-        TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+        if CHECK_TEMP:
+            check_temperature()
+        else:
+            pass
+
+    # if tempdeck.temperature >= TempUB and CHECK_TEMP:
+    #     ctx.pause('The temperature is above 5°C')
+    #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
+    #     ctx.resume()
+    #     Tempflag = 1
+    #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
+    #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
 
     # transfer mastermix to strips
     vol_per_strip_well = num_cols * mm_dict['volume'] * 1.1
@@ -175,13 +180,17 @@ resuming.')
     for well in mm_strip:
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
     # my modification
-    if tempdeck.temperature >= TempUB and CHECK_TEMP:
-        ctx.pause('The temperature is above 5°C')
-        # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-        ctx.resume()
-        Tempflag = 1
-        TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-        TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+    if CHECK_TEMP:
+        check_temperature()
+    else:
+        pass
+    # if tempdeck.temperature >= TempUB and CHECK_TEMP:
+    #     ctx.pause('The temperature is above 5°C')
+    #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
+    #     ctx.resume()
+    #     Tempflag = 1
+    #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
+    #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
     # transfer mastermix to plate
     mm_vol = mm_dict['volume']
     pick_up(m20)
@@ -199,15 +208,19 @@ resuming.')
         m20.aspirate(5, d.top(2))  # suck in any remaining droplets on way to trash
         m20.drop_tip()
         # Check temperature at the end of each iteration
-        if tempdeck.temperature >= temp_check:
-            # if CHECK_TEMP:  # It is needed to simulate on the computer otherwise is always empty
-            ctx.pause('The temperature is above the limits')
-            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-            ctx.resume()
-            Tempflag = 1
-            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
-            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+        if CHECK_TEMP:
+            check_temperature()
+        else:
+            pass
 
+        # if tempdeck.temperature >= temp_check:
+        #     # if CHECK_TEMP:  # It is needed to simulate on the computer otherwise is always empty
+        #     ctx.pause('The temperature is above the limits')
+        #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
+        #     ctx.resume()
+        #     Tempflag = 1
+        #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
+        #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
     ctx.home()
 
     # track final used tip
@@ -221,7 +234,7 @@ resuming.')
         with open(tip_file_path, 'w') as outfile:
             json.dump(data, outfile)
 
-    # Track Temperatures
+    # Write the Temp check log
     #     if CHECK_TEMP and ctx.is_simulating():  # if we execute the code on machines we don't see this
     if CHECK_TEMP:  # in order to check always
         if not os.path.isdir(folder_path):
