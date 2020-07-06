@@ -32,7 +32,7 @@ def main(w_ip='169.254.128.233'):  # IP used for ssh-ing the robot
     scp = SCPClient(client.get_transport())
     local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
 
-    scp.get(remote_path=remote_log_filepath, local_path=local_filepath)
+    scp.get(remote_path=remote_log_filepath, local_path=local_filepath) # lalalala
     scp.close()
 
 
