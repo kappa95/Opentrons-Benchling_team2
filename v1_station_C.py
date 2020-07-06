@@ -22,6 +22,7 @@ temp_check = 25.0
 
 def run(ctx: protocol_api.ProtocolContext):
 
+    # Define the Path for the log temperature file
     folder_path = './outputs'
     temp_file_path = folder_path + '/temp_log.json'
     TempLog = {"time": [], "value": [], "flag": []}  # For log file data
@@ -35,7 +36,7 @@ def run(ctx: protocol_api.ProtocolContext):
             Tempflag = 1
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
             TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-            TempLog["flag"] = Tempflag
+            TempLog["flag"].append(Tempflag)
         else:
             Tempflag = 0
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
