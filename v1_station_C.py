@@ -12,10 +12,12 @@ metadata = {
     'apiLevel': '2.3'
 }
 
-NUM_SAMPLES = 96  # start with 8 samples, slowly increase to 48, then 94 (max is 94)
+NUM_SAMPLES = 16  # start with 8 samples, slowly increase to 48, then 94 (max is 94)
 PREPARE_MASTERMIX = True
 TIP_TRACK = True  # i want to keep track of tips
 CHECK_TEMP = True
+temp_a = 24.9
+temp_check = 25.0
 
 
 def run(ctx: protocol_api.ProtocolContext):
@@ -36,24 +38,25 @@ def run(ctx: protocol_api.ProtocolContext):
     mm_strips = ctx.load_labware(
         'opentrons_96_aluminumblock_generic_pcr_strip_200ul', '7',
         'mastermix strips')
-    tempdeck.set_temperature(4)  # it sets the temp to 4°C
+    tempdeck.set_temperature(temp_a)  # it sets the temp to 4°C
     # my modification
     # tempdeck.module.wait_for_temp()  Not sure if needed since physical system is waiting for temperature, but I dont know why
     tube_block = ctx.load_labware(
         'opentrons_24_aluminumblock_nest_1.5ml_snapcap', '5',
         '2ml screw tube aluminum block for mastermix + controls')
+    print(tempdeck.temperature)
 
     # pipette
     m20 = ctx.load_instrument('p20_multi_gen2', 'right', tip_racks=tips20)
     p300 = ctx.load_instrument('p300_single_gen2', 'left', tip_racks=tips300)
 
     # setup up sample sources and destinations
-    num_cols = math.ceil(NUM_SAMPLES/8)
+    num_cols = math.ceil(NUM_SAMPLES / 8)
     sources = source_plate.rows()[0][:num_cols]
     sample_dests = pcr_plate.rows()[0][:num_cols]
 
-# Read the number of the tips from the json file if previously is runned the code. If the file doesn't exist it creates
-# a new one. If it exists it reads the number of tips used.
+    # Read the number of the tips from the json file if previously is runned the code. If the file doesn't exist it creates
+    # a new one. If it exists it reads the number of tips used.
 
     tip_log = {'count': {}}
     folder_path = './outputs'
@@ -74,9 +77,9 @@ def run(ctx: protocol_api.ProtocolContext):
             tip_log['count'] = {m20: 0, p300: 0}
     else:
         tip_log['count'] = {m20: 0, p300: 0}
-# now it counts the tips: tip is the variable of the list that actually is written and is taken by each rack in
-# tips20/tips300 for tips20 are considered the tips in the first row of the rack.
-   
+    # now it counts the tips: tip is the variable of the list that actually is written and is taken by each rack in
+    # tips20/tips300 for tips20 are considered the tips in the first row of the rack.
+
     tip_log['tips'] = {
         m20: [tip for rack in tips20 for tip in rack.rows()[0]],
         p300: [tip for rack in tips300 for tip in rack.wells()]
@@ -105,14 +108,14 @@ resuming.')
             for tube, vol in zip(tube_block.columns()[1], [10, 2])
         }
     }
+    TempUB = temp_check  # Upper bound on allowable temperature
     if CHECK_TEMP:
         temp_file_path = folder_path + '/temp_log.json'
-        TempUB = 5  # Upper bound on allowable temperature
         Tempflag = 0  # Generates log file in case temperature exceeds bound
         TempLog = {"time": [], "value": []}  # For log file data
         if tempdeck.temperature >= TempUB:
             ctx.pause('The temperature is above 5°C')
-            tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
+            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
             ctx.resume()
             Tempflag = 1
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
@@ -122,10 +125,10 @@ resuming.')
         vol_overage = 1.2  # decrease overage for small sample number
 
         for i, (tube, vol) in enumerate(mm_dict['components'].items()):
-            comp_vol = vol*(NUM_SAMPLES)*vol_overage
+            comp_vol = vol * (NUM_SAMPLES) * vol_overage
             pick_up(p300)
-            num_trans = math.ceil(comp_vol/160)
-            vol_per_trans = comp_vol/num_trans
+            num_trans = math.ceil(comp_vol / 160)
+            vol_per_trans = comp_vol / num_trans
             for _ in range(num_trans):
                 p300.air_gap(20)
                 p300.aspirate(vol_per_trans, tube)
@@ -139,7 +142,7 @@ resuming.')
                 p300.touch_tip(mm_tube)
             if i < len(mm_dict['components'].items()) - 1:  # only keep tip if last component and p300 in use
                 p300.drop_tip()
-        mm_total_vol = mm_dict['volume']*(NUM_SAMPLES)*vol_overage
+        mm_total_vol = mm_dict['volume'] * (NUM_SAMPLES) * vol_overage
         if not p300.hw_pipette['has_tip']:  # pickup tip with P300 if necessary for mixing
             pick_up(p300)
         mix_vol = mm_total_vol / 2 if mm_total_vol / 2 <= 200 else 200  # mix volume is 1/2 MM total, maxing at 200µl
@@ -147,27 +150,27 @@ resuming.')
         p300.mix(7, mix_vol, mix_loc)
         p300.blow_out(mm_tube.top())
         p300.touch_tip()
-    
+
     if tempdeck.temperature >= TempUB and CHECK_TEMP:
         ctx.pause('The temperature is above 5°C')
-        tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
+        # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
         TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
         TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
         # TempLog{datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f") = tempdeck.temperature # Generates Log file Data
-        
+
     # transfer mastermix to strips
-    vol_per_strip_well = num_cols*mm_dict['volume']*1.1
+    vol_per_strip_well = num_cols * mm_dict['volume'] * 1.1
     mm_strip = mm_strips.columns()[0]
     if not p300.hw_pipette['has_tip']:
         pick_up(p300)
     for well in mm_strip:
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
-# my modification
+    # my modification
     if tempdeck.temperature >= TempUB and CHECK_TEMP:
         ctx.pause('The temperature is above 5°C')
-        tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
+        # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
         ctx.resume()
         Tempflag = 1
         TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
@@ -189,15 +192,17 @@ resuming.')
         m20.aspirate(5, d.top(2))  # suck in any remaining droplets on way to trash
         m20.drop_tip()
         # Check temperature at the end of each iteration
-        if tempdeck.temperature >= 5:
-        # if CHECK_TEMP:  # It is needed to simulate on the computer otherwise is always empty
+        if tempdeck.temperature >= temp_check:
+            # if CHECK_TEMP:  # It is needed to simulate on the computer otherwise is always empty
             ctx.pause('The temperature is above the limits')
-            tempdeck.await_temperature(4)  # not sure if needed or we break the protocol
+            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
             ctx.resume()
             Tempflag = 1
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
             TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-                
+
+    ctx.home()
+
     # track final used tip
     if TIP_TRACK and not ctx.is_simulating():  # i have putted the not as the original
         if not os.path.isdir(folder_path):
@@ -210,7 +215,7 @@ resuming.')
             json.dump(data, outfile)
 
     # Track Temperatures
-#     if CHECK_TEMP and ctx.is_simulating():  # if we execute the code on machines we don't see this
+    #     if CHECK_TEMP and ctx.is_simulating():  # if we execute the code on machines we don't see this
     if CHECK_TEMP:  # in order to check always
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
