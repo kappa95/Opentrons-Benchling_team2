@@ -19,8 +19,7 @@ def main(w_ip='169.254.128.233'):  # IP used for ssh-ing the robot
     client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
     client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
     chann = client.invoke_shell()
-    chann.send('ls -a \n')
-    # chann.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
+    chann.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
     chann.send('exit \n')
     code = chann.recv_exit_status()
     print("I got the code: {}".format(code))
