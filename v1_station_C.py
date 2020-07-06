@@ -17,8 +17,8 @@ NUM_SAMPLES = 16  # start with 8 samples, slowly increase to 48, then 94 (max is
 PREPARE_MASTERMIX = True
 TIP_TRACK = True  # i want to keep track of tips
 CHECK_TEMP = True
-temp_a = 24.9
-temp_check = 25.0
+temp_a = 22.9
+temp_check = 23.0
 TempUB = temp_check + 1.0
 
 def run(ctx: protocol_api.ProtocolContext):
@@ -136,6 +136,12 @@ resuming.')
     }
 
     if PREPARE_MASTERMIX:
+
+        if CHECK_TEMP:
+            check_temperature()
+        else:
+            pass
+
         vol_overage = 1.2  # decrease overage for small sample number
 
         for i, (tube, vol) in enumerate(mm_dict['components'].items()):
