@@ -32,9 +32,9 @@ def run(ctx: protocol_api.ProtocolContext):
         if tempdeck.temperature >= TempUB:
             ctx.pause('The temperature is above {}°C'.format(TempUB))
             while tempdeck.temperature >= temp_check:
-                time.sleep(0.5)
                 print("sleeping for 0.5 s to wait for Temp_Deck")
                 print("current temperature is {}°C".format(tempdeck.temperature))
+                time.sleep(0.5)
                 
             # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
             ctx.resume()
