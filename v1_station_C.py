@@ -197,10 +197,10 @@ resuming.')
     for well in mm_strip:
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
     # my modification
-    if CHECK_TEMP:
-        check_temperature()
-    else:
-        pass
+        if CHECK_TEMP:
+            check_temperature()
+        else:
+            pass
     # if tempdeck.temperature >= TempUB and CHECK_TEMP:
     #     ctx.pause('The temperature is above 5°C')
     #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
