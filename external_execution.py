@@ -12,14 +12,9 @@ def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     client = pk.SSHClient()  # Create an object SSH client
     client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
     client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
-    env_dict = {"OT_SMOOTHIE_ID": "AMA", "RUNNING_ON_PI": "true"}  # Environment variables
-    (stdin, stdout, stderr) = client.exec_command('opentrons_execute {}/{} -n'.format(protocol_folder, protocol_file),
-                                                  environment=env_dict)
-    output = stdout.readlines()
-    print('\n'.join(output))
-    err = stderr.readlines()
-    print('\n'.join(err))
-
+    chann = client.invoke_shell()
+    chann.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
+    client.close()
 
 if __name__ == "__main__":
     main()
