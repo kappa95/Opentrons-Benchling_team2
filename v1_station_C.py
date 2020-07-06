@@ -18,7 +18,7 @@ TIP_TRACK = True  # i want to keep track of tips
 CHECK_TEMP = True
 temp_a = 24.9
 temp_check = 25.0
-
+TempUB = 26.0
 
 def run(ctx: protocol_api.ProtocolContext):
 
@@ -30,7 +30,12 @@ def run(ctx: protocol_api.ProtocolContext):
 
     def check_temperature():
         if tempdeck.temperature >= TempUB:
-            ctx.pause('The temperature is above 5°C')
+            ctx.pause('The temperature is above {}°C'.format(TempUB))
+            while tempdeck.temperature >= temp_check:
+                time.sleep(0.5)
+                print("sleeping for 0.5 s to wait for Temp_Deck")
+                print("current temperature is {}°C".format(tempdeck.temperature))
+                
             # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
             ctx.resume()
             Tempflag = 1
