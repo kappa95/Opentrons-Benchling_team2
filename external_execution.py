@@ -1,7 +1,8 @@
 import paramiko as pk
 
 key_name = 'ot2_ssh_key'  # Key name
-direct = 'C:/Users/inse9/'  # Folder of the key
+# direct = 'C:/Users/inse9/'  # Folder of the key
+direct = '/home/kappa95/'  # Folder of the key in case of linux using
 key = direct + key_name
 protocol_folder = '/var/lib/jupyter/notebooks/'  # Folder in which is contained the protocol on the machine
 protocol_file = 'v1_station_C.py'
