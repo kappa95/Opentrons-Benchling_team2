@@ -1,5 +1,9 @@
 import paramiko as pk
+import scp
 import datetime
+import subprocess
+from scp import SCPClient
+
 
 key_name = 'ot2_ssh_key'  # Key name
 # direct = 'C:/Users/inse9/'  # Folder of the key
@@ -20,11 +24,13 @@ def main(w_ip='169.254.128.233'):  # IP used for ssh-ing the robot
     chann.send('exit \n')
     code = chann.recv_exit_status()
     print("I got the code: {}".format(code))
-    client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
-    ftp_client = client.open_sftp()
+
+    # SCPCLient takes a paramiko transport as an argument
+    scp = SCPClient(client.get_transport())
     local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
-    ftp_client.get(remote_log_filepath, local_filepath)
-    ftp_client.close()
+
+    scp.get(remote_path=remote_log_filepath, local_path=local_filepath)
+    scp.close()
 
 
 if __name__ == "__main__":
