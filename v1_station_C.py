@@ -21,6 +21,7 @@ temp_a = 22.9
 temp_check = 23.0
 TempUB = temp_check + 1.0
 
+
 def run(ctx: protocol_api.ProtocolContext):
 
     # Define the Path for the log temperature file
@@ -30,18 +31,19 @@ def run(ctx: protocol_api.ProtocolContext):
 
     def check_temperature():
         if tempdeck.temperature >= TempUB:
-            ctx.pause('The temperature is above {}°C'.format(TempUB))
-            while tempdeck.temperature >= temp_check:
-                print("sleeping for 0.5 s to wait for Temp_Deck")
-                print("current temperature is {}°C".format(tempdeck.temperature))
-                await asyncio.sleep(0.1)
-                
-            # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-            ctx.resume()
-            Tempflag = 1
-            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-            TempLog["flag"].append(Tempflag)
+            if tempdeck.status != 'holding at target':
+                ctx.pause('The temperature is above {}°C'.format(TempUB))
+                while tempdeck.temperature >= temp_check:
+                    print("sleeping for 0.5 s to wait for Temp_Deck")
+                    print("current temperature is {}°C".format(tempdeck.temperature))
+                    await asyncio.sleep(0.1)
+                    
+                # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
+                ctx.resume()
+                Tempflag = 1
+                TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
+                TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
+                TempLog["flag"].append(Tempflag)
         else:
             Tempflag = 0
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
@@ -160,6 +162,10 @@ resuming.')
                 p300.dispense(20, mm_tube.top())  # void pre-loaded air gap
                 p300.blow_out(mm_tube.top())
                 p300.touch_tip(mm_tube)
+                if CHECK_TEMP:
+                    check_temperature()
+                else:
+                    pass
             if i < len(mm_dict['components'].items()) - 1:  # only keep tip if last component and p300 in use
                 p300.drop_tip()
         mm_total_vol = mm_dict['volume'] * (NUM_SAMPLES) * vol_overage
