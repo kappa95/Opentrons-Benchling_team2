@@ -41,7 +41,7 @@ def run(ctx: protocol_api.ProtocolContext):
             Tempflag = 0
             TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
             TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-            TempLog["flag"] = Tempflag
+            TempLog["flag"].append(Tempflag)
 
     global MM_TYPE
 
