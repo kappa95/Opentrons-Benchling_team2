@@ -1,7 +1,6 @@
 import paramiko as pk
 import scp
 import datetime
-import subprocess
 from scp import SCPClient
 
 
@@ -29,11 +28,11 @@ def main(w_ip='169.254.128.233'):  # IP used for ssh-ing the robot
     client = pk.SSHClient()  # Create an object SSH client
     client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
     client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
-    scp = SCPClient(client.get_transport())
+    scp_client = SCPClient(client.get_transport())
     local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
 
-    scp.get(remote_path=remote_log_filepath, local_path=local_filepath) # lalalala
-    scp.close()
+    scp_client.get(remote_path=remote_log_filepath, local_path=local_filepath)
+    scp_client.close()
 
 
 if __name__ == "__main__":
