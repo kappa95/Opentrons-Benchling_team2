@@ -12,13 +12,13 @@ cmd_rw = 'mount -o remount, rw /'
 local_file = local_filepath + filename
 
 
-def main(ip='192.168.1.14'):  # It creates the connection: you need to modify only the ip
+def main(ip='192.168.1.14'):  # It creates the connection: you need to pass only the ip
     client = pk.SSHClient()
     client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
     client.connect(ip, username='root', key_filename=key, password='opentrons')  # Connection
     client.exec_command(cmd_rw)  # It allows to modify the file system
     scp_client = SCPClient(client.get_transport())  # It opens the channel for the scp connection
-    scp_client.put(local_file, remote_filepath)
+    scp_client.put(local_file, remote_filepath)  # It copies the file
     scp_client.close()
 
 
