@@ -14,7 +14,7 @@ protocol_file = 'new_protocol.py'
 remote_log_filepath = '/var/lib/jupyter/notebooks/outputs/temp_log.json'
 
 
-def main(w_ip='169.254.128.233'):  # IP used for ssh-ing the robot
+def main(w_ip='192.168.1.14'):  # IP used for ssh-ing the robot
     client = pk.SSHClient()  # Create an object SSH client
     client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
     client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection

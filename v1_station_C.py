@@ -53,6 +53,8 @@ def run(ctx: protocol_api.ProtocolContext):
         with open(temp_file_path, 'w') as outfiletemp:
             json.dump(Log_Dict, outfiletemp)
 
+        print('{}: {}'.format(current_status, message))
+
     global MM_TYPE
     try:
         # check source (elution) labware type
