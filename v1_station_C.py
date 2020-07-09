@@ -146,7 +146,7 @@ resuming.')
         vol_overage = 1.2  # decrease overage for small sample number
 
         for i, (tube, vol) in enumerate(mm_dict['components'].items()):
-            comp_vol = vol * (NUM_SAMPLES) * vol_overage
+            comp_vol = vol * NUM_SAMPLES * vol_overage
             pick_up(p300)
             num_trans = math.ceil(comp_vol / 160)
             vol_per_trans = comp_vol / num_trans
@@ -167,7 +167,7 @@ resuming.')
                     pass
             if i < len(mm_dict['components'].items()) - 1:  # only keep tip if last component and p300 in use
                 p300.drop_tip()
-        mm_total_vol = mm_dict['volume'] * (NUM_SAMPLES) * vol_overage
+        mm_total_vol = mm_dict['volume'] * NUM_SAMPLES * vol_overage
         if not p300.hw_pipette['has_tip']:  # pickup tip with P300 if necessary for mixing
             pick_up(p300)
         mix_vol = mm_total_vol / 2 if mm_total_vol / 2 <= 200 else 200  # mix volume is 1/2 MM total, maxing at 200µl
@@ -201,14 +201,7 @@ resuming.')
             check_temperature()
         else:
             pass
-    # if tempdeck.temperature >= TempUB and CHECK_TEMP:
-    #     ctx.pause('The temperature is above 5°C')
-    #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-    #     ctx.resume()
-    #     Tempflag = 1
-    #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-    #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-    # transfer mastermix to plate
+
     mm_vol = mm_dict['volume']
     pick_up(m20)
     m20.transfer(mm_vol, mm_strip[0].bottom(0.5), sample_dests,
@@ -230,14 +223,6 @@ resuming.')
         else:
             pass
 
-        # if tempdeck.temperature >= temp_check:
-        #     # if CHECK_TEMP:  # It is needed to simulate on the computer otherwise is always empty
-        #     ctx.pause('The temperature is above the limits')
-        #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-        #     ctx.resume()
-        #     Tempflag = 1
-        #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S"))
-        #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
     ctx.home()
 
     # track final used tip
