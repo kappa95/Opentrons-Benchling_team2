@@ -8,7 +8,7 @@ import time
 # metadata
 metadata = {
     'protocolName': 'Version 1 S9 Station C BP PrimerDesign P20 Multi',
-    'author': 'Nick <protocols@opentrons.com>',
+    'author': 'Fede Wassim and German',
     'source': 'Custom Protocol Request',
     'apiLevel': '2.3'
 }
@@ -16,7 +16,7 @@ metadata = {
 NUM_SAMPLES = 16  # start with 8 samples, slowly increase to 48, then 94 (max is 94)
 PREPARE_MASTERMIX = True
 TIP_TRACK = True  # i want to keep track of tips
-CHECK_TEMP = True
+LOG = True
 temp_a = 22.9
 temp_check = 23.0
 TempUB = temp_check + 1.0
@@ -26,11 +26,13 @@ def run(ctx: protocol_api.ProtocolContext):
 
     # Define the Path for the log temperature file
     folder_path = '/var/lib/jupyter/outputs'
-    temp_file_path = folder_path + '/temp_log.json'
-    TempLog = {"time": [], "value": [], "flag": []}  # For log file data
+    temp_file_path = folder_path + '/completion_log.json'
+    Log_Dict = {"stages":[]}  # For log file data
+    current_status = "Setting environment"
 
-    def check_temperature():
-        if tempdeck.temperature >= TempUB and tempdeck.status != 'holding at target':
+    def update_log_file(message="Step executed successfully",check_temperature=True):
+        current_Log_dict = {"stage_name":current_status,"time":(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"),"temp":tempdeck.temperature,"message":message}
+        if tempdeck.temperature >= TempUB and tempdeck.status != 'holding at target' and check_temperature:
             if tempdeck.status != 'holding at target':
                 ctx.pause('The temperature is above {}°C'.format(TempUB))
                 while tempdeck.temperature >= temp_check:
@@ -40,18 +42,15 @@ def run(ctx: protocol_api.ProtocolContext):
                     
                 # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
                 ctx.resume()
-                Tempflag = 1
-                TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-                TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-                TempLog["flag"].append(Tempflag)
-        else:
-            Tempflag = 0
-            TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-            TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
-            TempLog["flag"].append(Tempflag)
-
+                current_Log_dict["message"]="Temperature rose above threshold"
+         Log_Dict["stages"].append(current_Log_dict)
+         if not os.path.isdir(folder_path):
+             os.mkdir(folder_path)
+         with open(temp_file_path, 'w') as outfiletemp:
+             json.dump(Log_Dict, outfiletemp)
+                                                                
     global MM_TYPE
-
+                                                                
     # check source (elution) labware type
     source_plate = ctx.load_labware(
         'opentrons_96_aluminumblock_nest_wellplate_100ul', '1',
@@ -77,6 +76,8 @@ def run(ctx: protocol_api.ProtocolContext):
     # pipette
     m20 = ctx.load_instrument('p20_multi_gen2', 'right', tip_racks=tips20)
     p300 = ctx.load_instrument('p300_single_gen2', 'left', tip_racks=tips300)
+                                                                
+    update_log_file()                                                
 
     # setup up sample sources and destinations
     num_cols = math.ceil(NUM_SAMPLES / 8)
@@ -138,11 +139,8 @@ resuming.')
 
     if PREPARE_MASTERMIX:
 
-        if CHECK_TEMP:
-            check_temperature()
-        else:
-            pass
-
+        current_status = "Preparing Mastermix"                                                             
+                                                                
         vol_overage = 1.2  # decrease overage for small sample number
 
         for i, (tube, vol) in enumerate(mm_dict['components'].items()):
@@ -161,10 +159,6 @@ resuming.')
                 p300.dispense(20, mm_tube.top())  # void pre-loaded air gap
                 p300.blow_out(mm_tube.top())
                 p300.touch_tip(mm_tube)
-                if CHECK_TEMP:
-                    check_temperature()
-                else:
-                    pass
             if i < len(mm_dict['components'].items()) - 1:  # only keep tip if last component and p300 in use
                 p300.drop_tip()
         mm_total_vol = mm_dict['volume'] * NUM_SAMPLES * vol_overage
@@ -176,39 +170,30 @@ resuming.')
         p300.blow_out(mm_tube.top())
         p300.touch_tip()
 
-        if CHECK_TEMP:
-            check_temperature()
-        else:
-            pass
+        update_log_file()
 
-    # if tempdeck.temperature >= TempUB and CHECK_TEMP:
-    #     ctx.pause('The temperature is above 5°C')
-    #     # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
-    #     ctx.resume()
-    #     Tempflag = 1
-    #     TempLog["time"].append(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"))
-    #     TempLog["value"].append(tempdeck.temperature)  # Generates Log file data
 
     # transfer mastermix to strips
+    current_status="Transfering mastermix to strips"                                                            
     vol_per_strip_well = num_cols * mm_dict['volume'] * 1.1
     mm_strip = mm_strips.columns()[0]
     if not p300.hw_pipette['has_tip']:
         pick_up(p300)
     for well in mm_strip:
         p300.transfer(vol_per_strip_well, mm_tube, well, new_tip='never')
-    # my modification
-        if CHECK_TEMP:
-            check_temperature()
-        else:
-            pass
-
+    update_log_file()
+                                                                
+    # transfer mastermix to plate
+    current_status = "Transfering mastermix to plate"
     mm_vol = mm_dict['volume']
     pick_up(m20)
     m20.transfer(mm_vol, mm_strip[0].bottom(0.5), sample_dests,
                  new_tip='never')
-    m20.drop_tip()
+    m20.drop_tip()    
+    update_log_file()
 
     # transfer samples to corresponding locations
+    current_status = "Transfering mastermix to plate"                                                            
     sample_vol = 20 - mm_vol
     for s, d in zip(sources, sample_dests):
         pick_up(m20)
@@ -217,14 +202,13 @@ resuming.')
         m20.blow_out(d.top(-2))
         m20.aspirate(5, d.top(2))  # suck in any remaining droplets on way to trash
         m20.drop_tip()
-        # Check temperature at the end of each iteration
-        if CHECK_TEMP:
-            check_temperature()
-        else:
-            pass
+    
+    update_log_file()
 
+    current_status = "Finished"
     ctx.home()
-
+    update_log_file()
+                                                                
     # track final used tip
     if TIP_TRACK and not ctx.is_simulating():  # i have putted the not as the original
         if not os.path.isdir(folder_path):
@@ -236,11 +220,3 @@ resuming.')
         with open(tip_file_path, 'w') as outfile:
             json.dump(data, outfile)
 
-    # Write the Temp check log
-    #     if CHECK_TEMP and ctx.is_simulating():  # if we execute the code on machines we don't see this
-    if CHECK_TEMP:  # in order to check always
-        if not os.path.isdir(folder_path):
-            os.mkdir(folder_path)
-        TEMPdata = TempLog
-        with open(temp_file_path, 'w') as outfiletemp:
-            json.dump(TEMPdata, outfiletemp)
