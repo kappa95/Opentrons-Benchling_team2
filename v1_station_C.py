@@ -25,15 +25,15 @@ TempUB = temp_check + 1.0
 def run(ctx: protocol_api.ProtocolContext):
 
     # Define the Path for the log temperature file
-    folder_path = '/var/lib/jupyter/outputs'
+    folder_path = '/var/lib/jupyter/notebooks/outputs'
     temp_file_path = folder_path + '/completion_log.json'
-    Log_Dict = {"stages":[]}  # For log file data
+    Log_Dict = {"stages": []}  # For log file data
     current_status = "Setting environment"
 
     def update_log_file(message="Step executed successfully", check_temperature=True):
-        current_Log_dict = {"stage_name":current_status,
+        current_Log_dict = {"stage_name": current_status,
                             "time": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"),
-                            "temp": tempdeck.temperature,
+                            "temp": float(tempdeck.temperature),
                             "message": message}
 
         if tempdeck.temperature >= TempUB and tempdeck.status != 'holding at target' and check_temperature:
@@ -109,8 +109,11 @@ def run(ctx: protocol_api.ProtocolContext):
             tip_log['count'] = {m20: 0, p300: 0}
     else:
         tip_log['count'] = {m20: 0, p300: 0}
-    # now it counts the tips: tip is the variable of the list that actually is written and is taken by each rack in
-    # tips20/tips300 for tips20 are considered the tips in the first row of the rack.
+
+        """now it counts the tips: tip is the variable of the list
+             that actually is written and is taken by each rack in
+            tips20/tips300 for tips20 are considered the tips
+             in the first row of the rack."""
 
     tip_log['tips'] = {
         m20: [tip for rack in tips20 for tip in rack.rows()[0]],
@@ -221,4 +224,4 @@ resuming.')
             'tips300': tip_log['count'][p300]
         }
         with open(tip_file_path, 'w') as outfile:
-            json.dump(data, outfile)
+            json.dump(data, outfile, indent=4)
