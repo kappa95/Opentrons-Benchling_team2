@@ -30,8 +30,12 @@ def run(ctx: protocol_api.ProtocolContext):
     Log_Dict = {"stages":[]}  # For log file data
     current_status = "Setting environment"
 
-    def update_log_file(message="Step executed successfully",check_temperature=True):
-        current_Log_dict = {"stage_name":current_status,"time":(datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"),"temp":tempdeck.temperature,"message":message}
+    def update_log_file(message="Step executed successfully", check_temperature=True):
+        current_Log_dict = {"stage_name":current_status,
+                            "time": datetime.datetime.now().strftime("%m/%d/%Y, %H:%M:%S:%f"),
+                            "temp": tempdeck.temperature,
+                            "message": message}
+
         if tempdeck.temperature >= TempUB and tempdeck.status != 'holding at target' and check_temperature:
             if tempdeck.status != 'holding at target':
                 ctx.pause('The temperature is above {}°C'.format(TempUB))
@@ -42,12 +46,12 @@ def run(ctx: protocol_api.ProtocolContext):
                     
                 # tempdeck.await_temperature(temp_check)  # not sure if needed or we break the protocol
                 ctx.resume()
-                current_Log_dict["message"]="Temperature rose above threshold"
-         Log_Dict["stages"].append(current_Log_dict)
-         if not os.path.isdir(folder_path):
-             os.mkdir(folder_path)
-         with open(temp_file_path, 'w') as outfiletemp:
-             json.dump(Log_Dict, outfiletemp)
+                current_Log_dict["message"] = "Temperature rose above threshold"
+        Log_Dict["stages"].append(current_Log_dict)
+        if not os.path.isdir(folder_path):
+            os.mkdir(folder_path)
+        with open(temp_file_path, 'w') as outfiletemp:
+            json.dump(Log_Dict, outfiletemp)
                                                                 
     global MM_TYPE
                                                                 
@@ -172,9 +176,8 @@ resuming.')
 
         update_log_file()
 
-
     # transfer mastermix to strips
-    current_status="Transfering mastermix to strips"                                                            
+    current_status = "Transfering mastermix to strips"
     vol_per_strip_well = num_cols * mm_dict['volume'] * 1.1
     mm_strip = mm_strips.columns()[0]
     if not p300.hw_pipette['has_tip']:
@@ -219,4 +222,3 @@ resuming.')
         }
         with open(tip_file_path, 'w') as outfile:
             json.dump(data, outfile)
-
