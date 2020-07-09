@@ -14,7 +14,7 @@ key = direct + key_name
 protocol_folder = '/var/lib/jupyter/notebooks'  # Folder in which is contained the protocol on the machine
 protocol_file = 'new_protocol.py'
 
-remote_log_filepath = '/var/lib/jupyter/notebooks/outputs/temp_log.json'
+remote_log_filepath = '/var/lib/jupyter/notebooks/outputs/completion_log.json'
 
 app = Flask(__name__)
 CORS(app)
