@@ -9,7 +9,7 @@ from scp import SCPClient
 
 
 key_name = 'ot2_ssh_key'  # Key name
-direct = './'  # Folder of the key
+direct = 'C:/Users/inse9/'  # Folder of the key
 key = direct + key_name
 protocol_folder = '/var/lib/jupyter/notebooks'  # Folder in which is contained the protocol on the machine
 protocol_file = 'new_protocol.py'
@@ -52,4 +52,4 @@ def executeAutomation(w_ip='192.168.1.14'):
 
 if __name__ == '__main__':
     app.debug = True
-    app.run(host='localhost', port=5001, threaded=True, use_reloader=False)
+    app.run(host='0.0.0.0', port=5001, threaded=True, use_reloader=False)  # put 'localhost' if you want local
