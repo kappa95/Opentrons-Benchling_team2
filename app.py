@@ -47,7 +47,9 @@ def executeAutomation(w_ip='192.168.1.14'):
 
         scp_client.get(remote_path=remote_log_filepath, local_path=local_filepath)
         scp_client.close()
-        return json.dumps({'res': "data"}), 200, {'ContentType': 'application/json'}
+        with open(local_filepath, 'r') as logjson:
+            json_object = json.load(logjson)
+        return json.dumps(json_object, indent=4), 200, {'ContentType': 'application/json'}
 
 
 if __name__ == '__main__':
