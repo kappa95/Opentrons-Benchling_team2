@@ -43,7 +43,7 @@ def executeAutomation(w_ip='192.168.1.14'):
         client.set_missing_host_key_policy(pk.AutoAddPolicy())  # It is needed to add the device policy
         client.connect(w_ip, username='root', key_filename=key, password='opentrons')  # Connection
         scp_client = SCPClient(client.get_transport())
-        local_filepath = "./temperature_log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
+        local_filepath = "./log_{}.json".format(datetime.datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
 
         scp_client.get(remote_path=remote_log_filepath, local_path=local_filepath)
         scp_client.close()
