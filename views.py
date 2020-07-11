@@ -7,7 +7,7 @@ bp_automation = Blueprint('automation', __name__)
 # Start polling services
 task_queue = Queue()
 
-from services import task_runner
+from Services import task_runner
 task_runner.start_scheduler()
 
 

@@ -9,5 +9,6 @@ app.config['TASK_STATUS'] = "ready"
 from views import bp_automation
 app.register_blueprint(bp_automation)
 
+
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=5001, debug=False)
