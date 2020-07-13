@@ -54,6 +54,7 @@ def execute_automation():
     global OPERATION_RUNNING
     if not OPERATION_RUNNING and not task_queue.empty():
         OPERATION_RUNNING = True
+        run_item = task_queue.get()
         client = create_ssh_client(usr='root', key_file=key, pwd=target_machine_password)
         channel = client.invoke_shell()
         channel.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
@@ -63,7 +64,7 @@ def execute_automation():
         # SCP Client takes a paramiko transport as an argument
         client = create_ssh_client(usr='root', key_file=key, pwd=target_machine_password)
         scp_client = SCPClient(client.get_transport())
-        local_filepath = "./log_{}.json".format(datetime.now().strftime("%m-%d-%Y_%H_%M_%S"))
+        local_filepath = "./log_{}.json".format(run_item["id"])
         scp_client.get(remote_path=remote_log_filepath, local_path=local_filepath)
         scp_client.close()
         OPERATION_RUNNING = False
