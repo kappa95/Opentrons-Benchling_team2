@@ -55,6 +55,7 @@ def execute_automation():
     if not OPERATION_RUNNING and not task_queue.empty():
         OPERATION_RUNNING = True
         run_item = task_queue.get()
+        current_app.config['TASK_STATUS'] = "running"
         client = create_ssh_client(usr='root', key_file=key, pwd=target_machine_password)
         channel = client.invoke_shell()
         channel.send('opentrons_execute {}/{} -n \n'.format(protocol_folder, protocol_file))
