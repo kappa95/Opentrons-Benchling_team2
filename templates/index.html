@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="/static/css/basic.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+      <form id="contact" action="" method="post">
+        <h3>Start a new protocol run</h3>
+        {% if msg %}<h4>{{ msg }}</h4>{% endif %}
+        <fieldset>
+          <input placeholder="Your name" type="text" tabindex="1" required autofocus>
+        </fieldset>
+        <fieldset>
+          <button name="submit" type="submit" id="contact-submit" data-submit="...Sending">Submit</button>
+        </fieldset>
+        <p class="copyright">Designed by <a href="https://colorlib.com" target="_blank" title="Colorlib">Colorlib</a></p>
+      </form>
+    </div>
+</body>
+</html>
