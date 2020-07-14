@@ -53,6 +53,8 @@ def execute_automation():
     global TASK_RUNNING
     if not TASK_RUNNING and not task_queue.empty():
         TASK_RUNNING = True
+        run_item = task_queue.get()
+        current_app.config['TASK_STATUS'] = "running"
         client = create_ssh_client(usr='root', key_file=OT2_SSH_KEY, pwd=OT2_ROBOT_PASSWORD)
         #client = create_ssh_client(usr='root', key_file=key, pwd=target_machine_password)
         channel = client.invoke_shell()
