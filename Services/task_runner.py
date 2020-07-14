@@ -33,7 +33,7 @@ def create_ssh_client(usr, key_file, pwd):
     return client
 
 
-@scheduler.job(interval=timedelta(seconds=TASK_QUEUE_POLLING_INTERVAL))
+# @scheduler.job(interval=timedelta(seconds=TASK_QUEUE_POLLING_INTERVAL))
 def test():
     global TASK_RUNNING
     if not TASK_RUNNING and not task_queue.empty():
@@ -48,7 +48,7 @@ def test():
         app.config['TASK_STATUS'] = "completed run ID: %s" % str(task)
 
 
-# @scheduler.job(interval=timedelta(seconds=QUEUE_POLLING_INTERVAL))
+@scheduler.job(interval=timedelta(seconds=QUEUE_POLLING_INTERVAL))
 def execute_automation():
     global TASK_RUNNING
     if not TASK_RUNNING and not task_queue.empty():
