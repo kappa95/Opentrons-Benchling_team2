@@ -11,8 +11,8 @@ task_queue = Queue()
 # task_runner.start_scheduler()
 
 
-@bp_automation.route('/automation', methods=['GET', 'POST'])
-def execute_automation():
+@bp_automation.route('/automation1', methods=['GET', 'POST'])
+def execute_automation_1():
     message = ""
     if request.method == 'POST':
         run_id = uuid4()
@@ -22,6 +22,17 @@ def execute_automation():
     if request.method == 'GET':
         return render_template('index.html', title="station A", msg=message), 200
     return 404
+
+
+@bp_automation.route('/automation', methods=['GET', 'POST'])
+def execute_automation():
+    message = ""
+    if request.method == 'GET':
+        run_id = uuid4()
+        task_queue.put(run_id)
+        message = "A new run has been scheduled for protocol. Run ID: %s" % run_id
+        print(message)
+        return jsonify({"foo": message}), 200
 
 
 @bp_automation.route('/check', methods=['GET'])

@@ -8,11 +8,11 @@ from views import task_queue
 scheduler = Timeloop()
 
 
-OT2_SSH_KEY = 'C:/Users/inse9/ot2_ssh_key'
+OT2_SSH_KEY = './ot2_ssh_key'
 OT2_PROTOCOL_PATH = '/var/lib/jupyter/notebooks'
 OT2_PROTOCOL_FILE = 'new_protocol.py'
 OT2_REMOTE_LOG_FILEPATH = '/var/lib/jupyter/notebooks/outputs/completion_log.json'
-OT2_TARGET_IP_ADDRESS = '192.168.1.14'
+OT2_TARGET_IP_ADDRESS = '10.213.55.215'
 OT2_ROBOT_PASSWORD = 'opentrons'
 TASK_QUEUE_POLLING_INTERVAL = 5
 TASK_RUNNING = False
@@ -48,15 +48,14 @@ def test():
         app.config['TASK_STATUS'] = "completed run ID: %s" % str(task)
 
 
-@scheduler.job(interval=timedelta(seconds=QUEUE_POLLING_INTERVAL))
+@scheduler.job(interval=timedelta(seconds=TASK_QUEUE_POLLING_INTERVAL))
 def execute_automation():
     global TASK_RUNNING
     if not TASK_RUNNING and not task_queue.empty():
+        task = task_queue.get()
+        app.config['TASK_STATUS'] = "running %s" % str(task)
         TASK_RUNNING = True
-        run_item = task_queue.get()
-        current_app.config['TASK_STATUS'] = "running"
         client = create_ssh_client(usr='root', key_file=OT2_SSH_KEY, pwd=OT2_ROBOT_PASSWORD)
-        #client = create_ssh_client(usr='root', key_file=key, pwd=target_machine_password)
         channel = client.invoke_shell()
         channel.send('opentrons_execute {}/{} -n \n'.format(OT2_PROTOCOL_PATH, OT2_PROTOCOL_FILE))
         channel.send('exit \n')
@@ -69,3 +68,4 @@ def execute_automation():
         scp_client.get(remote_path=OT2_REMOTE_LOG_FILEPATH, local_path=local_filepath)
         scp_client.close()
         TASK_RUNNING = False
+        app.config['TASK_STATUS'] = "completed run ID: %s" % str(task)
