@@ -1,0 +1,254 @@
+MODULE MainModule
+	TASK PERS tooldata tcp_pinza:=[TRUE,[[-0.366726,-1.43008,203.974],[1,0,0,0]],[2,[0,0,90],[1,0,0,0],0,0,0]];
+	TASK PERS tooldata tcp_matita:=[TRUE,[[197.772,2.78754,194.678],[0.707153,-0.000150721,0.707061,-7.45754E-05]],[2,[0,0,0],[1,0,0,0],0,0,0]];
+	TASK PERS wobjdata wobj_prelievo:=[FALSE,TRUE,"",[[568.174,-364.755,0.526884],[0.826949,0.00362777,0.00210232,0.562262]],[[0,0,0],[1,0,0,0]]];
+	TASK PERS wobjdata wobj_deposito:=[FALSE,TRUE,"",[[311.536,253.853,0.183542],[0.998035,0.00207994,-0.00253201,0.0625695]],[[0,0,0],[1,0,0,0]]];
+    
+    VAR num answer_obj;
+    VAR num answer_place;
+    VAR num alreadypickedcount := 1;
+    VAR num alreadypicked{3};
+    VAR num alreadyplacedcount := 1;
+    VAR num alreadyplaced{3};
+    VAR bool check ;
+    VAR bool again:= False;
+    PERS jointtarget phome:=[[1.14853,2.74877,39.7823,-180.674,-43.721,-22.3685],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    ! points for picking1
+    PERS robtarget p00:=[[85.26,-103.86,288.69],[0.0136134,0.988816,0.145978,0.027369],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p10:=[[112.46,90.75,95.70],[0.0135719,0.988808,0.146026,0.0273933],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p11:=[[109.11,87.96,16.67],[0.0135808,0.988819,0.145959,0.0273753],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    
+    ! points for placing1
+    PERS robtarget p12:=[[128.14,128.05,254.82],[0.0299109,0.925103,-0.377933,0.0213673],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p21:=[[109.40,87.69,181.30],[0.0298635,0.925096,-0.377954,0.021362],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p22:=[[109.30,86.37,18.25],[0.0298346,0.9251,-0.377947,0.0213454],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    
+     ! points for picking2
+    PERS robtarget p30p:=[[83.91,174.71,180.97],[0.0298612,0.925123,-0.37789,0.0213473],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p31p:=[[83.80,173.31,15.12],[0.0298694,0.925124,-0.377887,0.0213425],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    ! points for placing2
+    PERS robtarget p30d:=[[86.41,175.01,188.93],[0.0136321,0.988816,0.145984,0.0272993],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p31d:=[[85.52,174.37,17.02],[0.0136202,0.988817,0.145976,0.0273038],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    ! points for picking2
+    PERS robtarget p40p:=[[142.76,232.29,219.19],[0.0297171,0.925149,-0.37784,0.0212993],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p41p:=[[142.64,230.56,16.32],[0.0297308,0.925155,-0.377823,0.0212942],[-1,-2,-1,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    ! points for placing2
+    PERS robtarget p40d:=[[142.44,234.78,188.36],[0.0136752,0.988816,0.145992,0.0272472],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget p41d:=[[141.53,234.14,15.83],[0.0136651,0.988819,0.145972,0.0272382],[0,-3,0,1],[9E+09,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+	PROC main()
+        apri_pinza;
+    WHILE again DO
+        answer_obj := UINumEntry(
+
+                \Header:="Operator Enty"
+                \Message:="Which Object should I pick?"
+                \Icon:=iconInfo
+                \InitValue:=1
+                \MinValue:=1
+                \MaxValue:=4
+                \AsInteger);
+    check := CHECKINPUT (answer_obj, 1);
+    IF  check = FALSE THEN
+    alreadypickedcount := alreadypickedcount +1;
+    IF answer_obj<4 THEN
+        answer_place := UINumEntry(
+
+                \Header:="Operator Enty"
+                \Message:="Where should I place it?"
+                \Icon:=iconInfo
+                \InitValue:=1
+                \MinValue:=1
+                \MaxValue:=3
+                \AsInteger);
+    ENDIF
+        check := CHECKINPUT (answer_place, 2);
+        IF  check = FALSE THEN
+        alreadypickedcount := alreadyplacedcount + 1;
+        WaitDI D652_10_DI08,1;
+        TEST answer_obj
+        CASE 1:
+        pick1;
+        CASE 2:
+        pick2;
+        CASE 3:
+        pick3;
+        CASE 4:
+        pick1;
+        place1;
+        apri_pinza;
+		pick2;
+        place2;
+        apri_pinza;
+		pick3;
+        place3;
+        DEFAULT:
+        pick1;
+        ENDTEST
+        PRINTPOS answer_obj,1;
+        SAVEVALUE 1,answer_obj;
+        TEST answer_place
+        CASE 1:
+        place1;
+        CASE 2:
+        place2;
+        CASE 3:
+        place3;
+        DEFAULT:
+        place1;
+        ENDTEST
+         PRINTPOS answer_place,2;
+        MoveAbsJ phome\NoEOffs, v1000, z50, tcp_pinza\WObj:=wobj_deposito;
+        ELSE
+            TPWrite "Object Already Picked";
+    ENDIF
+    ELSE
+    TPWrite " place already filled";
+    ENDIF
+CONST string my_message:= " Want to pick another object";
+
+CONST string my_buttons{2}:=["YES","NO"];
+
+
+
+answer:= UIMessageBox (
+
+\Header:="UIMessageBox Header"
+
+\MsgArray:=my_message
+
+\BtnArray:=my_buttons
+
+\Icon:=iconInfo);
+
+IF answer = 1 THEN
+
+! Operator selection OK
+
+ELSEIF answer = 2 THEN
+
+! Operator selection Skip
+
+ELSE
+
+! No such case defined
+
+ENDIF
+
+    ENDWHILE
+	ENDPROC
+    
+    PROC pick1()
+        ! punti da definire
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p12,v1000,z50,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p21,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p22,v20,fine,tcp_pinza\WObj:=wobj_prelievo;
+        chiudi_pinza;
+        MoveL p21,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+    ENDPROC
+    
+    PROC place1()
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p00,v1000,z50,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p10,v100,z10,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p11,v20,fine,tcp_pinza\WObj:=wobj_deposito;
+        apri_pinza;
+        MoveL p10,v20,z50,tcp_pinza\WObj:=wobj_deposito;
+    ENDPROC
+    
+        PROC pick2()
+        ! punti da definire
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p12,v1000,z50,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p30p,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p31p,v20,fine,tcp_pinza\WObj:=wobj_prelievo;
+        chiudi_pinza;
+        MoveL p30p,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+        
+    ENDPROC
+    
+    PROC place2()
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p00,v1000,z50,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p30d,v100,z10,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p31d,v20,fine,tcp_pinza\WObj:=wobj_deposito;
+        apri_pinza;
+        MoveL p30d,v20,fine,tcp_pinza\WObj:=wobj_deposito;
+    ENDPROC
+    
+        PROC pick3()
+        ! punti da definire
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p12,v1000,z50,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p40p,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+        MoveL p41p,v20,fine,tcp_pinza\WObj:=wobj_prelievo;
+        chiudi_pinza;
+        MoveL p40p,v100,z10,tcp_pinza\WObj:=wobj_prelievo;
+        
+    ENDPROC
+    
+    PROC place3()
+        MoveAbsJ phome\NoEOffs,v1000,z50,tool0\WObj:=wobj0;
+        MoveJ p00,v1000,z50,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p40d,v100,z10,tcp_pinza\WObj:=wobj_deposito;
+        MoveL p41d,v20,fine,tcp_pinza\WObj:=wobj_deposito;
+        apri_pinza;
+        MoveL p40d,v20,fine,tcp_pinza\WObj:=wobj_deposito;
+    ENDPROC
+    
+    PROC apri_pinza()
+        Reset D652_10_DO16_Chiudi_Pinza;
+        Set D652_10_DO15_Apri_Pinza;
+        WaitTime 0.4;
+    ENDPROC
+    
+    PROC chiudi_pinza()
+        Reset D652_10_DO15_Apri_Pinza;
+        Set D652_10_DO16_Chiudi_Pinza;
+        WaitTime 0.4;
+    ENDPROC
+    
+    PROC PRINTPOS(num point, num action)
+        IF action = 1 THEN
+            TPWrite "Picked Object " \Num:= point;
+        ELSEIF  action = 2 THEN
+            TPWrite "Placed Object in Position " \Num:= point;
+        ELSE 
+            TPWrite "Action not recognized " ;
+        ENDIF
+    ENDPROC
+    
+    PROC SAVEVALUE(num action,num point)
+        IF action =1 THEN
+           GetDataVal "point", alreadypicked{alreadypickedcount};
+        ELSEIF action = 2 THEN
+           GetDataVal "point", alreadyplaced{alreadyplacedcount};            
+        ENDIF
+    ENDPROC
+    
+    FUNC bool CHECKINPUT(num point, num action)
+        VAR bool checkval;
+        checkval := FALSE;
+        IF action=1 THEN
+            FOR i FROM 1 TO alreadypickedcount DO
+                IF point = alreadypicked{i} THEN
+                checkval := TRUE;
+                ENDIF
+            ENDFOR
+        ELSEIF action=2 THEN
+            FOR i FROM 1 TO alreadyplacedcount DO
+                IF point = alreadyplaced{i} THEN
+                checkval := TRUE;
+                ENDIF
+            ENDFOR
+        ENDIF
+        RETURN checkval;
+    ENDFUNC
+    
+    
+    
+    
+        
+    
+ENDMODULE
